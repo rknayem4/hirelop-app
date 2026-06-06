@@ -1,7 +1,9 @@
 "use client";
 
+import { useState } from "react";
 import Link from "next/link";
 import { Check } from "@gravity-ui/icons";
+import { FcGoogle } from "react-icons/fc";
 
 import {
   Button,
@@ -12,40 +14,65 @@ import {
   Label,
   TextField,
 } from "@heroui/react";
-import { FcGoogle } from "react-icons/fc";
+import { authClient } from "@/lib/auth-client";
 
 export default function SignUpPage() {
-  const onSubmit = (e) => {
+  const [loading, setLoading] = useState(false);
+
+  const onSubmit = async (e) => {
     e.preventDefault();
 
-    const formData = new FormData(e.currentTarget);
+    setLoading(true);
 
-    const data = {};
+    try {
+      const formData = new FormData(e.currentTarget);
 
-    formData.forEach((value, key) => {
-      data[key] = value.toString();
+      const name = formData.get("name");
+      const email = formData.get("email");
+      const password = formData.get("password");
+
+      const { data, error } = await authClient.signUp.email({
+        name,
+        email,
+        password,
+        callbackURL: "/dashboard",
+      });
+
+      if (error) {
+        alert(error.message || "Signup failed");
+        return;
+      }
+
+      console.log("Signup Success:", data);
+    } catch (err) {
+      console.error(err);
+      alert("Something went wrong");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleGoogleSignup = async () => {
+    await authClient.signIn.social({
+      provider: "google",
+      callbackURL: "/dashboard",
     });
-
-    console.log(data);
   };
 
   return (
-    <div className="flex min-h-screen items-center justify-center px-4">
+    <div className="flex min-h-screen items-center justify-center px-4 py-10">
       <div className="w-full max-w-md rounded-3xl border border-default-200 bg-content1 p-8 shadow-xl">
+        {/* Header */}
         <div className="mb-8 text-center">
-          <h1 className="text-3xl font-bold">
-            Create Account
-          </h1>
+          <h1 className="text-3xl font-bold">Create Account 🚀</h1>
 
           <p className="mt-2 text-default-500">
-            Join HireLoop and start your journey.
+            Join HireLoop and start your journey today.
           </p>
         </div>
 
-        <Form
-          className="flex flex-col gap-5"
-          onSubmit={onSubmit}
-        >
+        {/* Form */}
+        <Form className="flex flex-col gap-5" onSubmit={onSubmit}>
           {/* Name */}
           <TextField isRequired name="name">
             <Label>Full Name</Label>
@@ -61,12 +88,8 @@ export default function SignUpPage() {
             name="email"
             type="email"
             validate={(value) => {
-              if (
-                !/^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i.test(
-                  value
-                )
-              ) {
-                return "Please enter a valid email";
+              if (!/^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i.test(value)) {
+                return "Please enter a valid email address";
               }
 
               return null;
@@ -90,11 +113,11 @@ export default function SignUpPage() {
               }
 
               if (!/[A-Z]/.test(value)) {
-                return "Must contain one uppercase letter";
+                return "Password must contain at least one uppercase letter";
               }
 
               if (!/[0-9]/.test(value)) {
-                return "Must contain one number";
+                return "Password must contain at least one number";
               }
 
               return null;
@@ -102,60 +125,50 @@ export default function SignUpPage() {
           >
             <Label>Password</Label>
 
-            <Input placeholder="Enter password" />
+            <Input placeholder="Enter your password" />
 
             <Description>
-              Minimum 8 characters, 1 uppercase,
-              1 number
+              Minimum 8 characters, 1 uppercase letter and 1 number.
             </Description>
 
             <FieldError />
           </TextField>
 
-          {/* Confirm Password */}
-          {/* <TextField
-            isRequired
-            name="confirmPassword"
-            type="password"
-          >
-            <Label>Confirm Password</Label>
-
-            <Input placeholder="Confirm password" />
-
-            <FieldError />
-          </TextField> */}
-
+          {/* Submit */}
           <Button
             type="submit"
             color="primary"
             className="w-full"
+            isLoading={loading}
           >
             <Check />
             Create Account
           </Button>
 
+          {/* Divider */}
           <div className="flex items-center gap-3">
             <div className="h-px flex-1 bg-default-200" />
-
-            <span className="text-xs text-default-500">
-              OR
-            </span>
-
+            <span className="text-xs text-default-500">OR</span>
             <div className="h-px flex-1 bg-default-200" />
           </div>
 
+          {/* Google Signup */}
           <Button
+            type="button"
             variant="secondary"
             className="w-full"
+            onPress={handleGoogleSignup}
           >
-           <FcGoogle /> Continue with Google
+            <FcGoogle className="text-lg" />
+            Continue with Google
           </Button>
 
+          {/* Footer */}
           <p className="text-center text-sm text-default-500">
             Already have an account?{" "}
             <Link
               href="/auth/signin"
-              className="font-medium text-primary"
+              className="font-medium text-primary hover:underline"
             >
               Sign In
             </Link>

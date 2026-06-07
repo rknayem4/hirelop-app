@@ -4,7 +4,7 @@ import React from "react";
 const Banner = () => {
   return (
     <section
-      className=" w-full relative text-white p-3"
+      className=" w-full relative text-white px-3"
       style={{
         backgroundImage: "url('/images/globe.png')",
         backgroundSize: "cover",

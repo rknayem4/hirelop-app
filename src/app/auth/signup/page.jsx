@@ -12,9 +12,12 @@ import {
   Form,
   Input,
   Label,
+  Radio,
+  RadioGroup,
   TextField,
 } from "@heroui/react";
 import { authClient } from "@/lib/auth-client";
+import { redirect } from "next/navigation";
 
 export default function SignUpPage() {
   const [loading, setLoading] = useState(false);
@@ -30,12 +33,13 @@ export default function SignUpPage() {
       const name = formData.get("name");
       const email = formData.get("email");
       const password = formData.get("password");
+      const role = formData.get("role");
 
       const { data, error } = await authClient.signUp.email({
         name,
         email,
         password,
-        callbackURL: "/dashboard",
+        role,
       });
 
       if (error) {
@@ -49,6 +53,7 @@ export default function SignUpPage() {
       alert("Something went wrong");
     } finally {
       setLoading(false);
+      redirect('/')
     }
   };
 
@@ -133,6 +138,34 @@ export default function SignUpPage() {
 
             <FieldError />
           </TextField>
+
+          {/* role */}
+          <div className="flex flex-col gap-4">
+            <Label>Register as a </Label>
+            <RadioGroup
+              isRequired
+              defaultValue="seeker"
+              name="role"
+              orientation="horizontal"
+            >
+              <Radio value="seeker">
+                <Radio.Control>
+                  <Radio.Indicator />
+                </Radio.Control>
+                <Radio.Content>
+                  <Label>Job Seeker</Label>
+                </Radio.Content>
+              </Radio>
+              <Radio value="recruiter">
+                <Radio.Control>
+                  <Radio.Indicator />
+                </Radio.Control>
+                <Radio.Content>
+                  <Label>Recruiter</Label>
+                </Radio.Content>
+              </Radio>
+            </RadioGroup>
+          </div>
 
           {/* Submit */}
           <Button

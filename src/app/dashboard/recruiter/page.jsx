@@ -1,4 +1,5 @@
 import DashboardOverview from "@/Components/Dashboard/DashboardOverview";
+import { session } from "@/lib/api";
 import {  Eye, FileText, Persons, Thunderbolt } from "@gravity-ui/icons";
 import React from "react";
 
@@ -29,6 +30,8 @@ const DashboardPage = () => {
       icon: Eye,
     },
   ];
+  const {user} = session
+  console.log(user)
   return (
     <div>
       <DashboardOverview dashboardStats={dashboardStats}></DashboardOverview>

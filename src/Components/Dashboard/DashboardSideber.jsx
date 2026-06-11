@@ -1,42 +1,46 @@
 import {
   Bars,
   Bell,
+  BriefcaseFill,
   Envelope,
   Gear,
   House,
   Magnifier,
   Person,
+  SquarePlus,
 } from "@gravity-ui/icons";
 import { Button, Drawer } from "@heroui/react";
+import Link from "next/link";
 
 export function DashboardSidebar() {
   const navItems = [
-    { icon: House, label: "Home" },
-    { icon: Magnifier, label: "Search" },
-    { icon: Bell, label: "Notifications" },
-    { icon: Envelope, label: "Messages" },
-    { icon: Person, label: "Profile" },
-    { icon: Gear, label: "Settings" },
+    { icon: House, label: "Home", link: "/dashboard/recruiter" },
+    { icon: SquarePlus, label: "Add new job", link: "/dashboard/recruiter/jobs/new" },
+    { icon: BriefcaseFill, label: "My Company", link: "/dashboard/recruiter/company" },
+    { icon: Envelope, label: "Messages", link: "dashboard/recruiter/" },
+    { icon: Person, label: "Profile", link: "dashboard/recruiter/" },
+    { icon: Gear, label: "Settings", link: "dashboard/recruiter/" },
   ];
   const navLinks = (
     <nav className="flex flex-col gap-1">
       {navItems.map((item) => (
-        <button
+        <Link
+          href={item.link}
           key={item.label}
           className="flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm text-foreground transition-colors hover:bg-default"
           type="button"
         >
           <item.icon className="size-5 text-muted" />
           {item.label}
-        </button>
+        </Link>
       ))}
     </nav>
   );
   return (
     <>
-    <aside className="hidden w-64 shrink-0 border-r border-default p-4 lg:block">
-      {navLinks}
-    </aside>
+      <aside className="hidden w-64 shrink-0 border-r border-default p-4 lg:block">
+        {navLinks}
+      </aside>
       <Drawer>
         <Button className="lg:hidden" variant="secondary">
           <Bars />

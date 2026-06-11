@@ -9,21 +9,34 @@ import { authClient } from "@/lib/auth-client";
 export default function NavBar() {
   const [isOpen, setIsOpen] = useState(false);
 
-  const {
-    data: session,
-    isPending,
-  } = authClient.useSession();
+  const { data: session, isPending } = authClient.useSession();
+
+  const handleLogout = async () => {
+    await authClient.signOut();
+    window.location.reload();
+  };
+  const user = session?.user;
 
   const navLinks = [
     { name: "Browse Jobs", path: "/jobs" },
     { name: "Companies", path: "/companies" },
     { name: "Pricing", path: "/pricing" },
   ];
-
-  const handleLogout = async () => {
-    await authClient.signOut();
-    window.location.reload();
+  const dashboardLinks = {
+    seeker: "/dashboard/seeker",
+    recruiter: "/dashboard/recruiter",
+    admin: "/dashboard/admin",
   };
+
+  if (session?.user?.email) {
+    navLinks.push({
+      name: "Dashboard",
+      path: dashboardLinks[session?.user?.role || "seeker"],
+    });
+  }
+
+  const dashboardPath =
+    dashboardLinks[session?.user?.role] || "/dashboard/seeker";
 
   return (
     <header className="sticky top-0 z-50 px-4 py-4">
@@ -48,25 +61,28 @@ export default function NavBar() {
                 {link.name}
               </Link>
             ))}
+
+            {/* {session && (
+              <Link
+                href={dashboardPath}
+                className="font-medium text-blue-400 hover:text-blue-300"
+              >
+                Dashboard
+              </Link>
+            )} */}
           </div>
 
           {/* Desktop Actions */}
           <div className="hidden lg:flex items-center gap-4">
             {isPending ? (
-              <span className="text-sm text-gray-400">
-                Loading...
-              </span>
+              <span className="text-sm text-gray-400">Loading...</span>
             ) : session ? (
               <>
                 <span className="text-white font-medium">
                   {session.user?.name}
                 </span>
 
-                <Button
-                  color="danger"
-                  variant="flat"
-                  onPress={handleLogout}
-                >
+                <Button color="danger" variant="flat" onPress={handleLogout}>
                   Logout
                 </Button>
               </>
@@ -95,11 +111,7 @@ export default function NavBar() {
             className="lg:hidden text-white"
             onClick={() => setIsOpen(!isOpen)}
           >
-            {isOpen ? (
-              <HiXMark size={28} />
-            ) : (
-              <HiBars3 size={28} />
-            )}
+            {isOpen ? <HiXMark size={28} /> : <HiBars3 size={28} />}
           </button>
         </div>
 
@@ -122,23 +134,27 @@ export default function NavBar() {
                 </Link>
               ))}
 
+              {session && (
+                <Link
+                  href={dashboardPath}
+                  className="font-medium text-blue-400"
+                  onClick={() => setIsOpen(false)}
+                >
+                  Dashboard
+                </Link>
+              )}
+
               <div className="h-px bg-white/10" />
 
               {isPending ? (
-                <span className="text-gray-400">
-                  Loading...
-                </span>
+                <span className="text-gray-400">Loading...</span>
               ) : session ? (
                 <>
                   <span className="font-medium text-white">
                     {session.user?.name}
                   </span>
 
-                  <Button
-                    color="danger"
-                    variant="flat"
-                    onPress={handleLogout}
-                  >
+                  <Button color="danger" variant="flat" onPress={handleLogout}>
                     Logout
                   </Button>
                 </>
